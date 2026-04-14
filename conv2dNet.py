@@ -6,7 +6,7 @@ class Conv2dNet(nn.Module):
 		super().__init__()
 		self.cnn_layers = nn.Sequential (
 			nn.Conv2d(3, 4, kernel_size=3, stride=1, padding=1),
-			nn.AvgPool2d(4, stride=1, padding=1),
+			nn.AvgPool2d(kernel_size=4, stride=1, padding=1),
 			nn.Conv2d(4, 4, kernel_size=3, stride=2, padding=1),
 			nn.BatchNorm2d(4),
 			nn.ReLU(inplace=True),
@@ -15,6 +15,7 @@ class Conv2dNet(nn.Module):
 
 		self.fc = nn.Sequential(
 			nn.Linear(12544, 3)
+			#nn.Linear(50176, 3)
 		)
 
 	def forward(self, x):

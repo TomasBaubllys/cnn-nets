@@ -8,15 +8,7 @@ from torch import optim
 import matplotlib.pyplot as plt
 import numpy as np
 
-def imshow(img):
-    img = img.cpu().numpy().transpose((1, 2, 0))
-    mean = np.array([0.485, 0.456, 0.406])
-    std = np.array([0.229, 0.224, 0.225])
-    img = std * img + mean
-    img = np.clip(img, 0, 1)
-    return img
-
-def train(epochs=90):
+def train(epochs=90, lr=0.001):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     #print(device)    
     
@@ -36,7 +28,7 @@ def train(epochs=90):
     dataloader_validation = DataLoader(dataset=dataset_validation, batch_size=16, num_workers=4)
 
     criterion = nn.CrossEntropyLoss().to(device)
-    optimizer = optim.Adam(conv2dNet.parameters(), lr=0.001)
+    optimizer = optim.Adam(conv2dNet.parameters(), lr=lr)
 
     for epoch in range(epochs):
         print(f"Epoch [{epoch + 1} / {epochs}]")
@@ -56,24 +48,11 @@ def train(epochs=90):
             optimizer.step()
             running_loss += loss.item()
 
-        print(f"AVG train loss: {running_loss/ len(dataloader_train) }")
+        print(f"AVG train loss: {running_loss / len(dataloader_train) }")
 
         # validation loop
-        correct = 0
-        total = 0
-        conv2dNet.eval()
-        with torch.no_grad():
-            for data in dataloader_validation:
-                imgs, labels = data
-                imgs.to(device)
-                labels.to(device)
-                outputs = conv2dNet(imgs)
-                _, predicted = torch.max(outputs, 1)
-                total += labels.size(0)
-                correct += (predicted == labels).sum().item()
-        
+        total, correct = test_single_pass(conv2dNet, dataloader_validation, device)
         print(f"Correct: {correct} / {total} ===> {correct / total * 100 :.3f}%")
-                #print(outputs)
 
     torch.save(conv2dNet.state_dict(), "model_weights.pth")
 
@@ -92,41 +71,27 @@ def test(weights_file):
     dataloader_test = DataLoader(dataset=dataset_test, batch_size=16, num_workers=4)
 
     conv2dNet.load_state_dict(torch.load(weights_file, weights_only=True))
+    total, correct = test_single_pass(conv2dNet, dataloader_test, device)
 
+    print(f"Correct: {correct} / {total} ===> {correct / total * 100 :.3f}%")
+
+# does a single pass on a model 
+def test_single_pass(model, dataloader, device):
     correct = 0
     total = 0
+    model.eval()
     with torch.no_grad():
-        for i, data in enumerate(dataloader_test):
+        for data in dataloader:
             imgs, labels = data
             imgs.to(device)
             labels.to(device)
-            outputs = conv2dNet(imgs)
+
+            outputs = model(imgs)
             _, predicted = torch.max(outputs, 1)
-
-
-            # ---- PLOTTING ----
-            batch_size = imgs.size(0)
-            cols = 4
-            rows = (batch_size + cols - 1) // cols
-
-            plt.figure(figsize=(12, 8))
-
-            for i in range(batch_size):
-                plt.subplot(rows, cols, i + 1)
-                plt.imshow(imshow(imgs[i]))
-                plt.title(f"Pred: {predicted[i].item()}")
-                plt.axis("off")
-
-            plt.tight_layout()
-            plt.show()
-            plt.savefig(f"ffig_{i}.png")
-            # -----------------
-
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-    
-    print(f"Correct: {correct} / {total} ===> {correct / total * 100 :.3f}%")
+    return total, correct
 
 if __name__ == "__main__":
-    #train(10)
-    test("model_weights.pth")
+    train(10)
+    #test("model_weights.pth")
