@@ -7,6 +7,7 @@ class Conv2dNet(nn.Module):
 		self.cnn_layers = nn.Sequential (
 			nn.Conv2d(3, 4, kernel_size=3, stride=1, padding=1),
 			nn.AvgPool2d(kernel_size=4, stride=1, padding=1),
+			nn.ReLU(inplace=True),
 			nn.Conv2d(4, 4, kernel_size=3, stride=2, padding=1),
 			nn.BatchNorm2d(4),
 			nn.ReLU(inplace=True),

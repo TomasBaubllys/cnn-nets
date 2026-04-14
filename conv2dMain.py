@@ -93,5 +93,5 @@ def test_single_pass(model, dataloader, device):
     return total, correct
 
 if __name__ == "__main__":
-    train(10)
-    #test("model_weights.pth")
+    #train(10)
+    test("model_weights.pth")
