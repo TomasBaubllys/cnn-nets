@@ -77,6 +77,43 @@ class Conv2dNetRes(nn.Module):
 		x = self.fc(x)
 		return x
 
+class Conv2dNetResBig(nn.Module):
+	def __init__(self):
+		super().__init__()
+		self.res_block1 = ResBlock(8)
+		self.prep_layer = nn.Sequential(
+			nn.Conv2d(3, 8, kernel_size=3, stride=1, padding=1),
+			nn.AvgPool2d(kernel_size=4, stride=1, padding=1),
+			nn.ReLU(inplace=True)
+		)
+		
+		self.middle_layer = nn.Sequential(
+			nn.Conv2d(8, 16, kernel_size=3, stride=2, padding=1),
+			nn.AvgPool2d(4),
+			nn.ReLU(inplace=True)
+		)
+
+		self.res_block2 = ResBlock(16)
+
+		self.last_layer = nn.AdaptiveAvgPool2d(4)
+		
+		self.fc = nn.Sequential(
+			nn.Linear(256, 3),
+			nn.Dropout(0.2)
+			#nn.Linear(50176, 3)
+		)
+
+	def forward(self, x):
+		x = self.prep_layer(x)
+		x = self.res_block1(x)
+		x = self.middle_layer(x)
+		x = self.res_block2(x)
+		x = self.last_layer(x)
+		x = torch.flatten(x, 1)
+		x = self.fc(x)
+		return x
+
+
 if __name__ == "__main__":
 	model = Conv2dNetStd()
 	print(model)
