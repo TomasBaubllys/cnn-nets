@@ -45,7 +45,7 @@ if __name__ == "__main__":
         loss1, rank1 = train(modelSmall, dataset_train, dataset_val, args.num_epochs, model_name="defaultNetStd")
         loss2, rank2 = train(modelRes, dataset_train, dataset_val, args.num_epochs, model_name="defaultRes")
         loss3, rank3 = train(modelResBig, dataset_train, dataset_val, args.num_epochs, model_name="defaultResBig")
-        plot_loss([loss1, loss2, loss3], ["Std", "Res", "ResBig"], len(loss1[0]), "default_train_loss.jpg")
+        plot_loss([loss1, loss2, loss3], ["Std", "Res", "ResBig"], len(loss1[0]), "default_train_loss.jpg", "Base models")
 
         acc1 = test(modelSmall, dataset_val, "defaultNetStd_model_weights.pth")
         acc2 = test(modelRes, dataset_val, "defaultRes_model_weights.pth")
