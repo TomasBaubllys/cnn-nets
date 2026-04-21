@@ -99,8 +99,7 @@ class Conv2dNetResBig(nn.Module):
 		
 		self.fc = nn.Sequential(
 			nn.Linear(256, 3),
-			nn.Dropout(0.2)
-			#nn.Linear(50176, 3)
+			#nn.Dropout(0.2)
 		)
 
 	def forward(self, x):
