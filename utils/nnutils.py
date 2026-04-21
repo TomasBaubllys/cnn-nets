@@ -104,7 +104,7 @@ def plot_hists(hists, labels, label_end, ylabel, epochs, figname, title):
     plt.xlabel("Epochs")
     plt.ylabel(ylabel)
     plt.savefig(figname)
-    plt.show()
+    plt.close()
 
 # plots an array of accuracies provided over epochs
 def plot_acc():
