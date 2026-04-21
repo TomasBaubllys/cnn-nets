@@ -107,6 +107,16 @@ def plot_hists(hists, labels, label_end, ylabel, epochs, figname, title):
     plt.close()
 
 # plots an array of accuracies provided over epochs
-def plot_acc():
+def plot_acc(accs, labels, figname, title):
+    x = np.arange(len(accs))
+    plt.bar(x, accs)
+    for i, v in enumerate(accs):
+        plt.text(i, v, f"{v:.3f}", ha='center', va='bottom')
+    plt.xticks(x, labels)
+    plt.ylabel("Accuracy")
+    plt.xlabel("Model")
+    plt.title(title)
+    plt.savefig(figname)
+    plt.close()
 
     return 0;

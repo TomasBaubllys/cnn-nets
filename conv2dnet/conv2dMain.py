@@ -7,7 +7,7 @@ import torch.nn as nn
 from torch import optim
 import matplotlib.pyplot as plt
 import numpy as np
-from utils.nnutils import test, train, plot_hists
+from utils.nnutils import test, train, plot_hists, plot_acc
 import argparse
 
 def parse_arguments():
@@ -52,3 +52,4 @@ if __name__ == "__main__":
         acc1 = test(modelSmall, dataset_val, "defaultNetStd_model_weights.pth")
         acc2 = test(modelRes, dataset_val, "defaultRes_model_weights.pth")
         acc3 = test(modelResBig, dataset_val, "defaultResBig_model_weights.pth")
+        plot_acc([acc1, acc2, acc3], ["Std", "Res", "ResBig"], "default_test_rank.jpg", "Base models train rank")
