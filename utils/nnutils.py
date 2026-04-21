@@ -103,6 +103,7 @@ def plot_hists(hists, labels, label_end, ylabel, epochs, figname, title):
     plt.legend()
     plt.xlabel("Epochs")
     plt.ylabel(ylabel)
+    plt.grid()
     plt.savefig(figname)
     plt.close()
 
@@ -116,6 +117,7 @@ def plot_acc(accs, labels, figname, title):
     plt.ylabel("Accuracy")
     plt.xlabel("Model")
     plt.title(title)
+    plt.grid()
     plt.savefig(figname)
     plt.close()
 
