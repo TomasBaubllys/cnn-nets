@@ -7,7 +7,7 @@ import torch.nn as nn
 from torch import optim
 import matplotlib.pyplot as plt
 import numpy as np
-from utils.nnutils import test, train, plot_loss
+from utils.nnutils import test, train, plot_hists
 import argparse
 
 def parse_arguments():
@@ -45,7 +45,9 @@ if __name__ == "__main__":
         loss1, rank1 = train(modelSmall, dataset_train, dataset_val, args.num_epochs, model_name="defaultNetStd")
         loss2, rank2 = train(modelRes, dataset_train, dataset_val, args.num_epochs, model_name="defaultRes")
         loss3, rank3 = train(modelResBig, dataset_train, dataset_val, args.num_epochs, model_name="defaultResBig")
-        plot_loss([loss1, loss2, loss3], ["Std", "Res", "ResBig"], len(loss1[0]), "default_train_loss.jpg", "Base models")
+        plot_hists([loss1, loss2, loss3], ["Std", "Res", "ResBig"], "loss", "Loss", len(loss1[0]), "default_train_loss.jpg", "Base models loss")
+        plot_hists([rank1, rank2, rank3], ["Std", "Res", "ResBig"], "rank", "Rank", len(loss1[0]), "default_train_rank.jpg", "Base models rank")
+
 
         acc1 = test(modelSmall, dataset_val, "defaultNetStd_model_weights.pth")
         acc2 = test(modelRes, dataset_val, "defaultRes_model_weights.pth")
