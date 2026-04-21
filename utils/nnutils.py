@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch import optim
+import matplotlib.pyplot as plt
+import numpy as np
 
 def train(model, dataset_train, dataset_val, epochs=90, lr=0.001, model_name="medium"):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -67,6 +69,7 @@ def test(model, dataset, weights_file):
     total, correct, _ = test_single_pass(model, dataloader_test, device)
 
     print(f"Correct: {correct} / {total} ===> {correct / total * 100 :.3f}%")
+    return correct / total
 
 def test_single_pass(model, dataloader, device, criterion=None):
     correct = 0
@@ -88,3 +91,17 @@ def test_single_pass(model, dataloader, device, criterion=None):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
     return total, correct, running_loss / len(dataloader)
+
+# plots an array of losses provided over epochs
+def plot_loss(loss_hists, labels, epochs, figname):
+    x = np.arange(0, epochs + 1)
+    for loss_train, loss_val, label in zip(loss_hists, labels):
+        plt.plot(x, loss_train, label=f"{label} train loss")
+        plt.plot(x, loss_val, label=f"{label} val loss")
+
+    plt.savefig(figname)
+    plt.show()
+
+# plots an array of accuracies provided over epochs
+def plot_acc():
+    return 0;

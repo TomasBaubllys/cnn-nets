@@ -7,7 +7,7 @@ import torch.nn as nn
 from torch import optim
 import matplotlib.pyplot as plt
 import numpy as np
-from utils.nnutils import test, train
+from utils.nnutils import test, train, plot_loss
 import argparse
 
 def parse_arguments():
@@ -45,13 +45,8 @@ if __name__ == "__main__":
         loss1, rank1 = train(modelSmall, dataset_train, dataset_val, args.num_epochs, model_name="defaultNetStd")
         loss2, rank2 = train(modelRes, dataset_train, dataset_val, args.num_epochs, model_name="defaultRes")
         loss3, rank3 = train(modelResBig, dataset_train, dataset_val, args.num_epochs, model_name="defaultResBig")
+        plot_loss([loss1, loss2, loss3], ["Std", "Res", "ResBig"], len(loss1[0]), "default_train_loss.jpg")
 
-        test(modelSmall, dataset_val, "defaultNetStd_model_weights.pth")
-        test(modelRes, dataset_val, "defaultRes_model_weights.pth")
-        test(modelResBig, dataset_val, "defaultResBig_model_weights.pth")
-
-    modelSmall = Conv2dNetResBig()
-    loss, rank = train(modelSmall, dataset_train, dataset_val, 10, model_name="rps_small")
-    print(loss)
-    print(rank)
-    test(modelSmall, dataset_val, "rps_small_model_weights.pth")
+        acc1 = test(modelSmall, dataset_val, "defaultNetStd_model_weights.pth")
+        acc2 = test(modelRes, dataset_val, "defaultRes_model_weights.pth")
+        acc3 = test(modelResBig, dataset_val, "defaultResBig_model_weights.pth")
