@@ -95,7 +95,7 @@ def test_single_pass(model, dataloader, device, criterion=None):
 # plots an array of losses provided over epochs
 def plot_loss(loss_hists, labels, epochs, figname):
     x = np.arange(0, epochs + 1)
-    for loss_train, loss_val, label in zip(loss_hists, labels):
+    for (loss_train, loss_val), label in zip(loss_hists, labels):
         plt.plot(x, loss_train, label=f"{label} train loss")
         plt.plot(x, loss_val, label=f"{label} val loss")
 
