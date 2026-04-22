@@ -17,6 +17,7 @@ def parse_arguments():
     parser.add_argument("-ne", "--num_epochs", type=int, default=10, help="Number of epochs to train for")
     parser.add_argument("-dpt", "--dropout_test", action="store_true", help="Runs the dropout test on Conv2dResBig", default=False)
     parser.add_argument("-pt", "--pooling_test", action="store_true", default=False, help="Runs the pooling test on Conv2dResBig")
+    parser.add_argument("-lrt", "--learning_rate_test", action="store_true", default=False, help="Runs the learning rate test on Conv2dResBig")
 
     return parser.parse_args()
 
@@ -94,3 +95,25 @@ if __name__ == "__main__":
         plot_hists(losss, labels, "loss", "Loss", len(losss[0][0]), "dpPT_train_loss.jpg", "Pooling train loss", fancy_legend=True)
         plot_hists(ranks, labels, "rank", "Rank", len(losss[0][0]), "dpPT_train_rank.jpg", "Pooling train rank", fancy_legend=True)
         plot_acc(accs, labels, "dpPT_test_rank.jpg", "Pooling test rank")
+    elif args.learning_rate_test:
+        lrs = [0.1, 0.05, 0.01, 0.001, 0.0001]
+        losss = []
+        ranks = []
+        accs = []
+        labels = [f"lr = {x}" for x in lrs]
+        for lr in lrs:
+            model = Conv2dNetResBig()
+            loss, rank = train(model, dataset_train, dataset_val, args.num_epochs, model_name=f"ResBiglr{str(lr).replace(".", "_")}")
+            losss.append(loss)
+            ranks.append(ranks)
+            acc = test(model, dataset_test, f"ResBiglr{str(lr).replace(".", "_")}_model_weights.pth")
+            accs.append(acc)
+        
+        plot_hists(losss, labels, "loss", "Loss", len(losss[0][0]), "dpLR_train_loss.jpg", "Learning rate train loss", fancy_legend=True)
+        plot_hists(ranks, labels, "rank", "Rank", len(losss[0][0]), "dpLR_train_rank.jpg", "Learning rate train rank", fancy_legend=True)
+        plot_acc(accs, labels, "dpLR_test_rank.jpg", "Learning rate test rank")
+        
+
+
+
+        
