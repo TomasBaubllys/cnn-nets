@@ -92,23 +92,27 @@ def test_single_pass(model, dataloader, device, criterion=None):
             correct += (predicted == labels).sum().item()
     return total, correct, running_loss / len(dataloader)
 
-# plots an array of losses provided over epochs
 def plot_hists(hists, labels, label_end, ylabel, epochs, figname, title, fancy_legend=False):
+    plt.figure(figsize=(10, 6))
     x = np.arange(1, epochs + 1)
+    
     for (loss_train, loss_val), label in zip(hists, labels):
-        plt.plot(x, loss_train, label=f"{label} train {label_end}")
-        plt.plot(x, loss_val, label=f"{label} val {label_end}")
+        line, = plt.plot(x, loss_train, label=f"{label} train {label_end}")
+        plt.plot(x, loss_val, '--', label=f"{label} val {label_end}", color=line.get_color())
 
     plt.title(title)
-    if(fancy_legend):
+    
+    if fancy_legend:
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
-          fancybox=True, ncol=3)
+                   fancybox=True, ncol=3)
     else:
         plt.legend()
+
     plt.xlabel("Epochs")
     plt.ylabel(ylabel)
-    plt.grid()
-    plt.savefig(figname)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    
+    plt.savefig(figname, bbox_inches='tight')
     plt.close()
 
 # plots an array of accuracies provided over epochs
@@ -121,7 +125,7 @@ def plot_acc(accs, labels, figname, title):
     plt.ylabel("Accuracy")
     plt.xlabel("Model")
     plt.title(title)
-    plt.savefig(figname)
+    plt.savefig(figname, bbox_inches='tight')
     plt.close()
 
     return 0;
