@@ -16,6 +16,7 @@ def parse_arguments():
     parser.add_argument("-btt", "--base_test_train", action="store_true", help="Run the training and testing on standart models", default=False)
     parser.add_argument("-ne", "--num_epochs", type=int, default=10, help="Number of epochs to train for")
     parser.add_argument("-dpt", "--dropout_test", action="store_true", help="Runs the dropout test on Conv2dResBig", default=False)
+    parser.add_argument("-pt", "--pooling_test", action="store_true", default=False, help="Runs the pooling test on Conv2dResBig")
 
     return parser.parse_args()
 
@@ -71,3 +72,25 @@ if __name__ == "__main__":
         plot_hists(losss, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "loss", "Loss", len(losss[0][0]), "dpRB_train_loss.jpg", "Dropout significance loss", fancy_legend=True)
         plot_hists(ranks, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "rank", "Rank", len(losss[0][0]), "dpRB_train_rank.jpg", "Dropout significance rank", fancy_legend=True)
         plot_acc(accs, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "dpRB_test_rank.jpg", "Dropout significance test rank")
+    elif args.pooling_test:
+        pool_arr = [nn.AvgPool2d(kernel_size=2, stride=1, padding=1), 
+                    nn.AvgPool2d(kernel_size=4, stride=1, padding=1),
+                    nn.AvgPool2d(kernel_size=4, stride=4, padding=1),
+                    nn.MaxPool2d(kernel_size=2, stride=1, padding=1),
+                    nn.MaxPool2d(kernel_size=4, stride=1, padding=1),
+                    ]
+        labels = ["avg k=2 s=1", "avg k=4 s=1","avg k=4 s=4","max k=2 s=1","max k=4 s=1"]
+        losss = []
+        ranks = []
+        accs = []
+        for label, pool in zip(labels, pool_arr):
+            model = Conv2dNetResBig(prep_pool=pool)
+            loss, rank = train(model, dataset_train, dataset_val, args.num_epochs, model_name=f"ResBigpt{label.replace(" ", "_")}")
+            losss.append(loss)
+            ranks.append(rank)
+            acc = test(model, dataset_test, f"ResBigdp{label.replace(" ", "_")}_model_weights.pth")
+            accs.append(acc)
+
+        plot_hists(losss, labels, "loss", "Loss", len(losss[0][0]), "dpPT_train_loss.jpg", "Pooling train loss", fancy_legend=True)
+        plot_hists(ranks, labels, "rank", "Rank", len(losss[0][0]), "dpPT_train_rank.jpg", "Pooling train rank", fancy_legend=True)
+        plot_acc(accs, labels, "dpPT_test_rank.jpg", "Pooling test rank")

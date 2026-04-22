@@ -86,7 +86,7 @@ class Conv2dNetResBig(nn.Module):
 		self.prep_layer = nn.Sequential(
 			nn.Conv2d(3, 8, kernel_size=3, stride=1, padding=1),
 			nn.AvgPool2d(kernel_size=4, stride=1, padding=1),
-			prep_pool
+			nn.ReLU(inplace=True)
 		)
 		
 		self.middle_layer = nn.Sequential(
