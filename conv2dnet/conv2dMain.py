@@ -114,10 +114,14 @@ if __name__ == "__main__":
         plot_hists(ranks, labels, "rank", "Rank", len(losss[0][0]), "dpLR_train_rank.jpg", "Learning rate train rank", fancy_legend=True)
         plot_acc(accs, labels, "dpLR_test_rank.jpg", "Learning rate test rank")
     if args.visual_test:
-        model = Conv2dNetResBig()
-        load_info = model.load_state_dict(torch.load("defaultResBig_model_weights.pth", map_location=torch.device('cpu'), weights_only=True))
-        print(load_info)
-        visualize_predictions(model, dataset_test)
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        model = Conv2dNetResBig().to(device)
+        train(model, dataset_train, dataset_val, 10)
+
+        #load_info = model.load_state_dict(torch.load("defaultResBig_model_weights.pth", map_location=torch.device('cpu'), weights_only=True))
+        #print(load_info)
+        visualize_predictions(model, dataset_test, device)
 
 
 

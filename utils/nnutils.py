@@ -138,7 +138,13 @@ def visualize_predictions(model, dataset, device="cpu"):
     images, labels = next(iter(loader))
     images, labels = images.to(device), labels.to(device)
 
-    class_names = {1: "Rock", 2: "Paper", 0: "Scissors"}
+    if hasattr(dataset, 'class_to_idx'):
+        # Invert the dict: {0: 'paper', 1: 'rock', ...}
+        idx_to_class = {v: k for k, v in dataset.class_to_idx.items()}
+    else:
+        # Fallback to your manual dict if dataset doesn't have class_to_idx
+        # BUT make sure it matches your folder structure!
+        idx_to_class = {0: "Paper", 1: "Rock", 2: "Scissors"}
 
     with torch.no_grad():
         outputs = model(images)
@@ -157,7 +163,7 @@ def visualize_predictions(model, dataset, device="cpu"):
         plt.imshow(img)
         
         color = "green" if preds[i] == labels[i] else "red"
-        plt.title(f"P: {class_names[preds[i].item()]}\nA: {class_names[labels[i].item()]}", 
+        plt.title(f"P: {idx_to_class[preds[i].item()]}\nA: {idx_to_class[labels[i].item()]}", 
                   color=color, fontsize=10)
         plt.axis("off")
         
