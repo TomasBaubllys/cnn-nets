@@ -81,6 +81,7 @@ class Conv2dNetResBig(nn.Module):
 	def __init__(self, dropout=0, prep_pool=nn.AvgPool2d(kernel_size=4, stride=1, padding=1)):
 		super().__init__()
 
+		self.dropout = dropout
 		self.res_block1 = ResBlock(8)
 		self.prep_layer = nn.Sequential(
 			nn.Conv2d(3, 8, kernel_size=3, stride=1, padding=1),
@@ -99,8 +100,8 @@ class Conv2dNetResBig(nn.Module):
 		self.last_layer = nn.AdaptiveAvgPool2d(4)
 		
 		self.fc = nn.Sequential(
-			nn.Linear(256, 3),
-			#nn.Dropout(0.2)
+			nn.Dropout(self.dropout),
+			nn.Linear(256, 3)
 		)
 
 	def forward(self, x):
