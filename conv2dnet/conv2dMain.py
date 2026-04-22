@@ -103,7 +103,7 @@ if __name__ == "__main__":
         labels = [f"lr = {x}" for x in lrs]
         for lr in lrs:
             model = Conv2dNetResBig()
-            loss, rank = train(model, dataset_train, dataset_val, args.num_epochs, model_name=f"ResBiglr{str(lr).replace(".", "_")}")
+            loss, rank = train(model, dataset_train, dataset_val, args.num_epochs, model_name=f"ResBiglr{str(lr).replace(".", "_")}", lr=lr)
             losss.append(loss)
             ranks.append(rank)
             acc = test(model, dataset_test, f"ResBiglr{str(lr).replace(".", "_")}_model_weights.pth")
