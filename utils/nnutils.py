@@ -117,7 +117,7 @@ def plot_acc(accs, labels, figname, title):
     plt.xticks(x, labels)
     plt.ylabel("Accuracy")
     plt.xlabel("Model")
-    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+    plt.legend(bbox_to_anchor=(0., -0.1, 1., -0.1), loc=1, borderaxespad=0.)
     plt.tight_layout()
     plt.title(title)
     plt.savefig(figname)

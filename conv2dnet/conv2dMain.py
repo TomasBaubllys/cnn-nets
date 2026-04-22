@@ -39,9 +39,9 @@ if __name__ == "__main__":
     args = parse_arguments()
     
     if args.base_test:
-        test(modelSmall, dataset_val, "defaultNetStd_model_weights.pth")
-        test(modelRes, dataset_val, "defaultRes_model_weights.pth")
-        test(modelResBig, dataset_val, "defaultResBig_model_weights.pth")
+        test(modelSmall, dataset_test, "defaultNetStd_model_weights.pth")
+        test(modelRes, dataset_test, "defaultRes_model_weights.pth")
+        test(modelResBig, dataset_test, "defaultResBig_model_weights.pth")
     elif args.base_test_train:
         loss1, rank1 = train(modelSmall, dataset_train, dataset_val, args.num_epochs, model_name="defaultNetStd")
         loss2, rank2 = train(modelRes, dataset_train, dataset_val, args.num_epochs, model_name="defaultRes")
@@ -50,28 +50,23 @@ if __name__ == "__main__":
         plot_hists([rank1, rank2, rank3], ["Std", "Res", "ResBig"], "rank", "Rank", len(loss1[0]), "default_train_rank.jpg", "Base models rank")
 
 
-        acc1 = test(modelSmall, dataset_val, "defaultNetStd_model_weights.pth")
-        acc2 = test(modelRes, dataset_val, "defaultRes_model_weights.pth")
-        acc3 = test(modelResBig, dataset_val, "defaultResBig_model_weights.pth")
+        acc1 = test(modelSmall, dataset_test, "defaultNetStd_model_weights.pth")
+        acc2 = test(modelRes, dataset_test, "defaultRes_model_weights.pth")
+        acc3 = test(modelResBig, dataset_test, "defaultResBig_model_weights.pth")
         plot_acc([acc1, acc2, acc3], ["Std", "Res", "ResBig"], "default_test_rank.jpg", "Base models test rank")
     elif args.dropout_test:
-        model0 = Conv2dNetResBig(dropout=0)
-        model02 = Conv2dNetResBig(dropout=0.2)
-        model05 = Conv2dNetResBig(dropout=0.5)
-        model07 = Conv2dNetResBig(dropout=0.7)
-        model09 = Conv2dNetResBig(dropout=0.9)
-        loss1, rank1 = train(model0, dataset_train, dataset_val, args.num_epochs, model_name="ResBigdp0")
-        loss2, rank2 = train(model02, dataset_train, dataset_val, args.num_epochs, model_name="ResBigdp02")
-        loss3, rank3 = train(model05, dataset_train, dataset_val, args.num_epochs, model_name="ResBigdp05")
-        loss4, rank4 = train(model07, dataset_train, dataset_val, args.num_epochs, model_name="ResBigdp07")
-        loss5, rank5 = train(model09, dataset_train, dataset_val, args.num_epochs, model_name="ResBigdp09")
-        plot_hists([loss1, loss2, loss3, loss4, loss5], ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "loss", "Loss", len(loss1[0]), "dpRB_train_loss.jpg", "Dropout significance loss")
-        plot_hists([rank1, rank2, rank3, loss4, loss5], ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "rank", "Rank", len(loss1[0]), "dpRB_train_rank.jpg", "Dropout significance rank")
+        losss = []
+        ranks = []
+        accs = []
+        dropouts = [0, 0.2, 0.5, 0.7, 0.9]
+        test_model = Conv2dNetResBig()
+        for dropout in dropouts:
+            model = Conv2dNetResBig(dropout=dropout)
+            loss, rank = train(model, dataset_train, dataset_val, args.num_epochs, model_name=f"ResBigdp{str(dropout).replace(".", "_")}")
+            losss.append(loss)
+            ranks.append(rank)
+            acc = test(test_model, dataset_test, f"ResBigdp{str(dropout).replace(".", "")}_model_weights.pth")
 
-
-        acc1 = test(model0, dataset_val, "ResBigdp0_model_weights.pth")
-        acc2 = test(model02, dataset_val, "ResBigdp02_model_weights.pth")
-        acc3 = test(model05, dataset_val, "ResBigdp05_model_weights.pth")
-        acc4 = test(model07, dataset_val, "ResBigdp07_model_weights.pth")
-        acc5 = test(model09, dataset_val, "ResBigdp09_model_weights.pth")
-        plot_acc([acc1, acc2, acc3, acc4, acc5], ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "dpRB_test_rank.jpg", "Dropout significance test rank")
+        plot_hists(losss, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "loss", "Loss", len(losss[0][0]), "dpRB_train_loss.jpg", "Dropout significance loss")
+        plot_hists(ranks, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "rank", "Rank", len(losss[0][0]), "dpRB_train_rank.jpg", "Dropout significance rank")
+        plot_acc(accs, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "dpRB_test_rank.jpg", "Dropout significance test rank")
