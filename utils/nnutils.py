@@ -101,7 +101,7 @@ def plot_hists(hists, labels, label_end, ylabel, epochs, figname, title):
 
     plt.title(title)
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
-          fancybox=True, ncol=2)
+          fancybox=True, ncol=4)
     plt.tight_layout()
     plt.xlabel("Epochs")
     plt.ylabel(ylabel)
