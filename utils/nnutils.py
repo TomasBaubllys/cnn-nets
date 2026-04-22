@@ -5,6 +5,58 @@ from torch import optim
 import matplotlib.pyplot as plt
 import numpy as np
 
+import torch
+from torch.utils.data import DataLoader
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import numpy as np
+
+def generate_confusion_matrix(model, dataset, weights_path, save_path="confusion_matrix.png"):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+    
+    model.load_state_dict(torch.load(weights_path, map_location=device, weights_only=True))
+    model.eval()
+
+    dataloader = DataLoader(dataset, batch_size=16, shuffle=False)
+    
+    all_preds = []
+    all_labels = []
+
+    with torch.no_grad():
+        for images, labels in dataloader:
+            images = images.to(device)
+            
+            outputs = model(images)
+            _, preds = torch.max(outputs, 1)
+            
+            all_preds.extend(preds.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
+
+    cm = confusion_matrix(all_labels, all_preds)
+    
+    if hasattr(dataset, 'class_to_idx'):
+        class_names = [k for k, v in sorted(dataset.class_to_idx.items(), key=lambda item: item[1])]
+    else:
+        class_names = [str(i) for i in range(len(np.unique(all_labels)))]
+
+    fig_size = 12 if len(class_names) > 5 else 7
+    fig, ax = plt.subplots(figsize=(fig_size, fig_size))
+    
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_names)
+    
+    disp.plot(
+        cmap='Blues', 
+        ax=ax, 
+        xticks_rotation='vertical' if len(class_names) > 5 else 'horizontal',
+        values_format='d'
+    )
+    
+    plt.title(f"Confusion Matrix\nWeights: {weights_path}")
+    plt.tight_layout()
+    plt.savefig(save_path)
+    plt.close()
+    
 def train(model, dataset_train, dataset_val, epochs=90, lr=0.001, model_name="medium", optim_str="adam"):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(device)	

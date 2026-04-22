@@ -6,7 +6,7 @@ from conv2dnet.rockPaperScissorsDataset import RockPaperScissorsDataset
 from torchvision.transforms import transforms
 import torch.nn as nn
 import numpy as np
-from utils.nnutils import test, train, plot_hists, plot_acc, visualize_predictions
+from utils.nnutils import test, train, plot_hists, plot_acc, visualize_predictions, generate_confusion_matrix
 import argparse
 import os
 
@@ -19,6 +19,7 @@ def parse_arguments():
     parser.add_argument("-pt", "--pooling_test", action="store_true", default=False, help="Runs the pooling test on Conv2dResBig")
     parser.add_argument("-lrt", "--learning_rate_test", action="store_true", default=False, help="Runs the learning rate test on Conv2dResBig")
     parser.add_argument("-vt", "--visual_test", action="store_true", default=False, help="Visualize the predictions of random 25 images using Conv2dResBig")
+    parser.add_argument("-cm", "--confusion_matrix", action="store_true", default=False, help="Generates a confusion matrix for Conv2dResBig")
 
     return parser.parse_args()
 
@@ -123,7 +124,8 @@ if __name__ == "__main__":
         load_info = model.load_state_dict(torch.load("ResBiglr0_01_model_weights.pth", map_location=torch.device('cpu'), weights_only=True))
         print(load_info)
         visualize_predictions(model, dataset_test, device)
-
-
+    if args.confusion_matrix:
+        model = Conv2dNetResBig
+        generate_confusion_matrix(model, dataset_test, "ResBiglr0_01_model_weights.pth", save_path="confusionresbig.jpg")
 
         
