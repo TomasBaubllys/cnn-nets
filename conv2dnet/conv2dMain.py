@@ -96,7 +96,7 @@ if __name__ == "__main__":
         plot_hists(ranks, labels, "rank", "Rank", len(losss[0][0]), "dpPT_train_rank.jpg", "Pooling train rank", fancy_legend=True)
         plot_acc(accs, labels, "dpPT_test_rank.jpg", "Pooling test rank")
     elif args.learning_rate_test:
-        lrs = [0.1, 0.05, 0.01, 0.001, 0.0001]
+        lrs = [1, 0.1, 0.01, 0.001, 0.0001]
         losss = []
         ranks = []
         accs = []
