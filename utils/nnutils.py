@@ -162,5 +162,5 @@ def visualize_predictions(model, dataset, device="cpu"):
         plt.axis("off")
         
     plt.tight_layout()
-    #plt.savefig("visual_test.jpg")
-    plt.show()
+    plt.savefig("visual_test.jpg")
+    #plt.show()
