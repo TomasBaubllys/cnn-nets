@@ -117,6 +117,7 @@ def plot_hists(hists, labels, label_end, ylabel, epochs, figname, title, fancy_l
 
 # plots an array of accuracies provided over epochs
 def plot_acc(accs, labels, figname, title):
+    plt.figure(figsize=(10, 6))
     x = np.arange(len(accs))
     plt.bar(x, accs)
     for i, v in enumerate(accs):
