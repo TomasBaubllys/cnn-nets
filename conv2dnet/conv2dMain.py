@@ -88,7 +88,7 @@ if __name__ == "__main__":
             loss, rank = train(model, dataset_train, dataset_val, args.num_epochs, model_name=f"ResBigpt{label.replace(" ", "_")}")
             losss.append(loss)
             ranks.append(rank)
-            acc = test(model, dataset_test, f"ResBigdp{label.replace(" ", "_")}_model_weights.pth")
+            acc = test(model, dataset_test, f"ResBigpt{label.replace(" ", "_")}_model_weights.pth")
             accs.append(acc)
 
         plot_hists(losss, labels, "loss", "Loss", len(losss[0][0]), "dpPT_train_loss.jpg", "Pooling train loss", fancy_legend=True)
