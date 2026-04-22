@@ -122,9 +122,7 @@ def plot_acc(accs, labels, figname, title):
     plt.bar(x, accs)
     for i, v in enumerate(accs):
         plt.text(i, v, f"{v:.3f}", ha='center', va='bottom')
-    ax = plt.gca()
-    ax.set_xticks(x) 
-    ax.set_xticklabels(labels)
+    plt.xticks(x, labels)
     plt.ylabel("Accuracy")
     plt.xlabel("Model")
     plt.title(title)
