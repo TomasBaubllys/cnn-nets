@@ -16,6 +16,7 @@ def parse_arguments():
     parser.add_argument("-ne", "--num_epochs", type=int, default=90, help="Number of epochs to train for")
     parser.add_argument("-bnt", "--batch_norm_test", action="store_true", default=False, help="Run the batch normalization test on Conv1dNetSmall")
     parser.add_argument("-ot", "--optimizer_test", action="store_true", default=False, help="Run the optimizer test on Conv1dNetSmall")
+    parser.add_argument("-lrt", "--learning_rate_test", action="store_true", default=False, help="Runs the learning rate test on Conv1dNetSmall")
 
     return parser.parse_args()
 
@@ -70,3 +71,21 @@ if __name__ == "__main__":
         acc2 = test(model2, dataset_test, "smallsgd_model_weights.pth")
         acc3 = test(model3, dataset_test, "smallrms_model_weights.pth")
         plot_acc([acc1, acc2, acc3], ["Adam", "SGD","RMSProp"], "smalloptim_test_rank.jpg", "Optimizer test rank")
+    if args.learning_rate_test:
+        lrs = [0.05, 0.01, 0.001, 0.0005, 0.0001]
+        losss = []
+        ranks = []
+        accs = []
+        labels = [f"lr = {x}" for x in lrs]
+        for lr in lrs:
+            model = Conv1dNetSmall()
+            loss, rank = train(model, dataset_train, dataset_val, args.num_epochs, model_name=f"smalllr{str(lr).replace(".", "_")}", lr=lr)
+            losss.append(loss)
+            ranks.append(rank)
+            acc = test(model, dataset_test, f"smalllr{str(lr).replace(".", "_")}_model_weights.pth")
+            accs.append(acc)
+        
+        plot_hists(losss, labels, "loss", "Loss", len(losss[0][0]), "smallLR_train_loss.jpg", "Learning rate train loss", fancy_legend=True)
+        plot_hists(ranks, labels, "rank", "Rank", len(losss[0][0]), "smallLR_train_rank.jpg", "Learning rate train rank", fancy_legend=True)
+        plot_acc(accs, labels, "smallLR_test_rank.jpg", "Learning rate test rank")
+    
