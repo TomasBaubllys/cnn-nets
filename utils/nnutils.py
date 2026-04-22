@@ -128,3 +128,39 @@ def plot_acc(accs, labels, figname, title):
     plt.title(title)
     plt.savefig(figname, bbox_inches='tight')
     plt.close()
+
+# function asisted by AI (model used - Gemini)
+def visualize_predictions(model, dataset, device="cpu"):
+    model.to(device)
+    model.eval()
+    
+    loader = DataLoader(dataset, batch_size=25, shuffle=True)
+    images, labels = next(iter(loader))
+    images, labels = images.to(device), labels.to(device)
+
+    class_names = {1: "Rock", 2: "Paper", 0: "Scissors"}
+
+    with torch.no_grad():
+        outputs = model(images)
+        _, preds = torch.max(outputs, 1)
+
+    plt.figure(figsize=(12, 12))
+    for i in range(25):
+        plt.subplot(5, 5, i + 1)
+        
+        img = images[i].cpu().numpy().transpose((1, 2, 0))
+        mean = np.array([0.485, 0.456, 0.406])
+        std = np.array([0.229, 0.224, 0.225])
+        img = std * img + mean
+        img = np.clip(img, 0, 1)
+        
+        plt.imshow(img)
+        
+        color = "green" if preds[i] == labels[i] else "red"
+        plt.title(f"P: {class_names[preds[i].item()]}\nA: {class_names[labels[i].item()]}", 
+                  color=color, fontsize=10)
+        plt.axis("off")
+        
+    plt.tight_layout()
+    #plt.savefig("visual_test.jpg")
+    plt.show()

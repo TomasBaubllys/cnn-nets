@@ -7,7 +7,7 @@ import torch.nn as nn
 from torch import optim
 import matplotlib.pyplot as plt
 import numpy as np
-from utils.nnutils import test, train, plot_hists, plot_acc
+from utils.nnutils import test, train, plot_hists, plot_acc, visualize_predictions
 import argparse
 
 def parse_arguments():
@@ -18,6 +18,7 @@ def parse_arguments():
     parser.add_argument("-dpt", "--dropout_test", action="store_true", help="Runs the dropout test on Conv2dResBig", default=False)
     parser.add_argument("-pt", "--pooling_test", action="store_true", default=False, help="Runs the pooling test on Conv2dResBig")
     parser.add_argument("-lrt", "--learning_rate_test", action="store_true", default=False, help="Runs the learning rate test on Conv2dResBig")
+    parser.add_argument("-vt", "--visual_test", action="store_true", default=False, help="Visualize the predictions of random 25 images using Conv2dResBig")
 
     return parser.parse_args()
 
@@ -44,7 +45,7 @@ if __name__ == "__main__":
         test(modelSmall, dataset_test, "defaultNetStd_model_weights.pth")
         test(modelRes, dataset_test, "defaultRes_model_weights.pth")
         test(modelResBig, dataset_test, "defaultResBig_model_weights.pth")
-    elif args.base_test_train:
+    if args.base_test_train:
         loss1, rank1 = train(modelSmall, dataset_train, dataset_val, args.num_epochs, model_name="defaultNetStd")
         loss2, rank2 = train(modelRes, dataset_train, dataset_val, args.num_epochs, model_name="defaultRes")
         loss3, rank3 = train(modelResBig, dataset_train, dataset_val, args.num_epochs, model_name="defaultResBig")
@@ -56,7 +57,7 @@ if __name__ == "__main__":
         acc2 = test(modelRes, dataset_test, "defaultRes_model_weights.pth")
         acc3 = test(modelResBig, dataset_test, "defaultResBig_model_weights.pth")
         plot_acc([acc1, acc2, acc3], ["Std", "Res", "ResBig"], "default_test_rank.jpg", "Base models test rank")
-    elif args.dropout_test:
+    if args.dropout_test:
         losss = []
         ranks = []
         accs = []
@@ -73,7 +74,7 @@ if __name__ == "__main__":
         plot_hists(losss, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "loss", "Loss", len(losss[0][0]), "dpRB_train_loss.jpg", "Dropout significance loss", fancy_legend=True)
         plot_hists(ranks, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "rank", "Rank", len(losss[0][0]), "dpRB_train_rank.jpg", "Dropout significance rank", fancy_legend=True)
         plot_acc(accs, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "dpRB_test_rank.jpg", "Dropout significance test rank")
-    elif args.pooling_test:
+    if args.pooling_test:
         pool_arr = [nn.AvgPool2d(kernel_size=2, stride=1, padding=1), 
                     nn.AvgPool2d(kernel_size=4, stride=1, padding=1),
                     nn.AvgPool2d(kernel_size=4, stride=4, padding=1),
@@ -95,7 +96,7 @@ if __name__ == "__main__":
         plot_hists(losss, labels, "loss", "Loss", len(losss[0][0]), "dpPT_train_loss.jpg", "Pooling train loss", fancy_legend=True)
         plot_hists(ranks, labels, "rank", "Rank", len(losss[0][0]), "dpPT_train_rank.jpg", "Pooling train rank", fancy_legend=True)
         plot_acc(accs, labels, "dpPT_test_rank.jpg", "Pooling test rank")
-    elif args.learning_rate_test:
+    if args.learning_rate_test:
         lrs = [0.05, 0.01, 0.001, 0.0005, 0.0001]
         losss = []
         ranks = []
@@ -112,7 +113,10 @@ if __name__ == "__main__":
         plot_hists(losss, labels, "loss", "Loss", len(losss[0][0]), "dpLR_train_loss.jpg", "Learning rate train loss", fancy_legend=True)
         plot_hists(ranks, labels, "rank", "Rank", len(losss[0][0]), "dpLR_train_rank.jpg", "Learning rate train rank", fancy_legend=True)
         plot_acc(accs, labels, "dpLR_test_rank.jpg", "Learning rate test rank")
-        
+    if args.visual_test:
+        model = Conv2dNetResBig()
+        model.load_state_dict(torch.load("defaultResBig_model_weights.pth", map_location=torch.device('cpu'), weights_only=True))
+        visualize_predictions(model, dataset_test)
 
 
 
