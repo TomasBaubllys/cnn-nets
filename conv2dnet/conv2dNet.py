@@ -77,11 +77,9 @@ class Conv2dNetRes(nn.Module):
 		x = self.fc(x)
 		return x
 
-class Conv2dNetResBig(nn.Module, dropout=0, prep_pool=None):
-	def __init__(self):
+class Conv2dNetResBig(nn.Module):
+	def __init__(self, dropout=0, prep_pool=nn.AvgPool2d(kernel_size=4, stride=1, padding=1)):
 		super().__init__()
-		if not prep_pool:
-			prep_pool=nn.AvgPool2d(kernel_size=4, stride=1, padding=1)
 
 		self.res_block1 = ResBlock(8)
 		self.prep_layer = nn.Sequential(
