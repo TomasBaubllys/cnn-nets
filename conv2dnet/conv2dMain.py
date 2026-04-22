@@ -126,6 +126,6 @@ if __name__ == "__main__":
         visualize_predictions(model, dataset_test, device)
     if args.confusion_matrix:
         model = Conv2dNetResBig
-        generate_confusion_matrix(model, dataset_test, "ResBiglr0_01_model_weights.pth", save_path="confusionresbig.jpg")
+        generate_confusion_matrix(model=model, dataset=dataset_test, weights_path="ResBiglr0_01_model_weights.pth", save_path="confusionresbig.jpg")
 
         
