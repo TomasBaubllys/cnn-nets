@@ -101,8 +101,7 @@ def plot_hists(hists, labels, label_end, ylabel, epochs, figname, title):
 
     plt.title(title)
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
-          fancybox=True, ncol=4)
-    plt.tight_layout()
+          fancybox=True, ncol=3)
     plt.xlabel("Epochs")
     plt.ylabel(ylabel)
     plt.grid()
@@ -118,7 +117,6 @@ def plot_acc(accs, labels, figname, title):
     plt.xticks(x, labels)
     plt.ylabel("Accuracy")
     plt.xlabel("Model")
-    plt.tight_layout()
     plt.title(title)
     plt.savefig(figname)
     plt.close()
