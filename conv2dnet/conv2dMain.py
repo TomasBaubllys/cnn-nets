@@ -67,6 +67,6 @@ if __name__ == "__main__":
             ranks.append(rank)
             acc = test(test_model, dataset_test, f"ResBigdp{str(dropout).replace(".", "")}_model_weights.pth")
 
-        plot_hists(losss, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "loss", "Loss", len(losss[0][0]), "dpRB_train_loss.jpg", "Dropout significance loss")
-        plot_hists(ranks, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "rank", "Rank", len(losss[0][0]), "dpRB_train_rank.jpg", "Dropout significance rank")
+        plot_hists(losss, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "loss", "Loss", len(losss[0][0]), "dpRB_train_loss.jpg", "Dropout significance loss", fancy_legend=True)
+        plot_hists(ranks, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "rank", "Rank", len(losss[0][0]), "dpRB_train_rank.jpg", "Dropout significance rank", fancy_legend=True)
         plot_acc(accs, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "dpRB_test_rank.jpg", "Dropout significance test rank")

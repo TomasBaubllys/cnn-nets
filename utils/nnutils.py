@@ -93,15 +93,18 @@ def test_single_pass(model, dataloader, device, criterion=None):
     return total, correct, running_loss / len(dataloader)
 
 # plots an array of losses provided over epochs
-def plot_hists(hists, labels, label_end, ylabel, epochs, figname, title):
+def plot_hists(hists, labels, label_end, ylabel, epochs, figname, title, fancy_legend=False):
     x = np.arange(1, epochs + 1)
     for (loss_train, loss_val), label in zip(hists, labels):
         plt.plot(x, loss_train, label=f"{label} train {label_end}")
         plt.plot(x, loss_val, label=f"{label} val {label_end}")
 
     plt.title(title)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
+    if(fancy_legend):
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
           fancybox=True, ncol=3)
+    else:
+        plt.legend()
     plt.xlabel("Epochs")
     plt.ylabel(ylabel)
     plt.grid()
