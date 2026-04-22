@@ -5,7 +5,7 @@ from torch import optim
 import matplotlib.pyplot as plt
 import numpy as np
 
-def train(model, dataset_train, dataset_val, epochs=90, lr=0.001, model_name="medium"):
+def train(model, dataset_train, dataset_val, epochs=90, lr=0.001, model_name="medium", optim_str="adam"):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(device)	
 
@@ -15,7 +15,12 @@ def train(model, dataset_train, dataset_val, epochs=90, lr=0.001, model_name="me
     dataloader_val = DataLoader(dataset_val, batch_size=16, num_workers=4, shuffle=True)
 
     criterion = nn.CrossEntropyLoss().to(device)
-    optimizer = optim.Adam(model.parameters(), lr=lr)
+    if optim_str == "adam":
+        optimizer = optim.Adam(model.parameters(), lr=lr)
+    elif optim_str == "sgd":
+        optimizer = optim.SGD(model.parameters(), lr=lr)
+    elif optim_str == "rms":
+        optimizer = optim.RMSprop(model.parameters(), lr=lr)
 
     lost_hist = [[], []]
     rank_hist = [[], []]

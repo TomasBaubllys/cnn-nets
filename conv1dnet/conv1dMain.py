@@ -15,6 +15,7 @@ def parse_arguments():
     parser.add_argument("-btt", "--base_test_train", action="store_true", help="Run the training and testing on standart models", default=False)
     parser.add_argument("-ne", "--num_epochs", type=int, default=90, help="Number of epochs to train for")
     parser.add_argument("-bnt", "--batch_norm_test", action="store_true", default=False, help="Run the batch normalization test on Conv1dNetSmall")
+    parser.add_argument("-ot", "--optimizer_test", action="store_true", default=False, help="Run the optimizer test on Conv1dNetSmall")
 
     return parser.parse_args()
 
@@ -54,3 +55,18 @@ if __name__ == "__main__":
         acc1 = test(modelSmallBn, dataset_test, "smallBn_model_weights.pth")
         acc2 = test(modelSmallNoBn, dataset_test, "smallNoBn_model_weights.pth")
         plot_acc([acc1, acc2], ["with batchnorm", "without batchnorm"], "smallbn_test_rank.jpg", "Batchnorm test rank")
+    if args.optimizer_test:
+        model1 = Conv1dNetSmall()
+        model2 = Conv1dNetSmall()
+        model3 = Conv1dNetSmall()
+        
+        loss1, rank1 = train(model1, dataset_train, dataset_val, args.num_epochs, model_name="smalladam", optim_str="adam")
+        loss2, rank2 = train(model2, dataset_train, dataset_val, args.num_epochs, model_name="smallsgd", optim_str="sgb")
+        loss3, rank3 = train(model3, dataset_train, dataset_val, args.num_epochs, model_name="smallrms", optim_str="rms")
+        plot_hists([loss1, loss2, loss3], ["Adam", "SGB","RMSProp"], "loss", "Loss", len(loss1[0]), "smalloptim_train_loss.jpg", "Optimizer train loss")
+        plot_hists([rank1, rank2, rank3], ["Adam", "SGB","RMSProp"], "rank", "Rank", len(loss1[0]), "smalloptim_train_rank.jpg", "Optimizer train rank")
+        
+        acc1 = test(model1, dataset_test, "smalladam_model_weights.pth")
+        acc2 = test(model2, dataset_test, "smallsgd_model_weights.pth")
+        acc3 = test(model3, dataset_test, "smallrms_model_weights.pth")
+        plot_acc([acc1, acc2, acc3], ["Adam", "SGB","RMSProp"], "smalloptim_test_rank.jpg", "Optimizer test rank")
