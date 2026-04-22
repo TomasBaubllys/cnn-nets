@@ -2,10 +2,14 @@ import torch
 import torch.nn as nn
 
 class Conv1dNetSmall(nn.Module):
-    def __init__(self):
+    def __init__(self, use_batch_norm=True):
         super().__init__()
+        if use_batch_norm:
+            self.bn = nn.BatchNorm1d(1)
+        else:
+            self.bn = nn.Identity()
+
         self.cnn_layers = nn.Sequential(
-            nn.BatchNorm1d(1),
             nn.Conv1d(1, 4, kernel_size=3, stride=1, padding=1),
             nn.ReLU(inplace=True),
             nn.MaxPool1d(kernel_size=3, stride=1, padding=1),
@@ -16,6 +20,7 @@ class Conv1dNetSmall(nn.Module):
         )
 
     def forward(self, x):
+        x = self.bn(x)
         x = self.cnn_layers(x)
         x = torch.flatten(x, 1)
         x = self.fc(x)

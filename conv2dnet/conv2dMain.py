@@ -1,14 +1,14 @@
+# Author Tomas Baublys
+
 import torch
 from conv2dnet.conv2dNet import Conv2dNetStd, Conv2dNetRes, Conv2dNetResBig
 from conv2dnet.rockPaperScissorsDataset import RockPaperScissorsDataset
 from torchvision.transforms import transforms
-from torch.utils.data import DataLoader
 import torch.nn as nn
-from torch import optim
-import matplotlib.pyplot as plt
 import numpy as np
 from utils.nnutils import test, train, plot_hists, plot_acc, visualize_predictions
 import argparse
+import os
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -51,7 +51,6 @@ if __name__ == "__main__":
         loss3, rank3 = train(modelResBig, dataset_train, dataset_val, args.num_epochs, model_name="defaultResBig")
         plot_hists([loss1, loss2, loss3], ["Std", "Res", "ResBig"], "loss", "Loss", len(loss1[0]), "default_train_loss.jpg", "Base models loss")
         plot_hists([rank1, rank2, rank3], ["Std", "Res", "ResBig"], "rank", "Rank", len(loss1[0]), "default_train_rank.jpg", "Base models rank")
-
 
         acc1 = test(modelSmall, dataset_test, "defaultNetStd_model_weights.pth")
         acc2 = test(modelRes, dataset_test, "defaultRes_model_weights.pth")
@@ -116,11 +115,13 @@ if __name__ == "__main__":
     if args.visual_test:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        model = Conv2dNetResBig().to(device)
-        train(model, dataset_train, dataset_val, 10)
+        model = Conv2dNetResBig()
+        #train(model, dataset_train, dataset_val, 10)
+        if(not os.path.exists("ResBiglr0_01_model_weights.pth")):
+            raise FileNotFoundError("file ResBiglr0_01_model_weights.pth not found, please run the program with -lrt flag to generate it")
 
-        #load_info = model.load_state_dict(torch.load("defaultResBig_model_weights.pth", map_location=torch.device('cpu'), weights_only=True))
-        #print(load_info)
+        load_info = model.load_state_dict(torch.load("ResBiglr0_01_model_weights.pth", map_location=torch.device('cpu'), weights_only=True))
+        print(load_info)
         visualize_predictions(model, dataset_test, device)
 
 
