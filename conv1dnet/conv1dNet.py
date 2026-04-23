@@ -1,9 +1,13 @@
+# Author: Tomas Baublys
+
 import torch
 import torch.nn as nn
 
+# smallest net of the bunch
 class Conv1dNetSmall(nn.Module):
     def __init__(self, use_batch_norm=True):
         super().__init__()
+        # for batchnorm testing
         if use_batch_norm:
             self.bn = nn.BatchNorm1d(1)
         else:
@@ -26,6 +30,7 @@ class Conv1dNetSmall(nn.Module):
         x = self.fc(x)
         return x
     
+# medium network model
 class Conv1dNetMedium(nn.Module):
     def __init__(self):
         super().__init__()
@@ -59,6 +64,7 @@ class Conv1dNetMedium(nn.Module):
         x = self.fc(x)
         return x
     
+# largest network model
 class Conv1dNetLarge(nn.Module):
     def __init__(self):
         super().__init__()
@@ -95,7 +101,8 @@ class Conv1dNetLarge(nn.Module):
         x = torch.flatten(x, 1)
         x = self.fc(x)
         return x
-    
+
+# code for testing the small model to see if dimmensions match  
 if __name__ == "__main__":
     conv1dNet = Conv1dNetSmall()
     dummy = torch.rand(1, 1, 31)

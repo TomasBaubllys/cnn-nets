@@ -1,3 +1,5 @@
+# Author: Tomas Baublys
+
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -10,7 +12,9 @@ from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import numpy as np
+import csv
 
+# generates a confusion matrix for a given model and dataset, before calling ensure that weights file exists
 def generate_confusion_matrix(model, dataset, weights_path, save_path="confusion_matrix.png"):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
@@ -57,6 +61,8 @@ def generate_confusion_matrix(model, dataset, weights_path, save_path="confusion
     plt.savefig(save_path)
     plt.close()
     
+# used for training the given mdoel with the given dataset and given parameters
+# outputs the weights into a given file
 def train(model, dataset_train, dataset_val, epochs=90, lr=0.001, model_name="medium", optim_str="adam"):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(device)	
@@ -113,7 +119,8 @@ def train(model, dataset_train, dataset_val, epochs=90, lr=0.001, model_name="me
 
     torch.save(model.state_dict(), f"{model_name}_model_weights.pth")
     return lost_hist, rank_hist
-        
+
+# used for testing a given model with the given dataset
 def test(model, dataset, weights_file):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -128,6 +135,7 @@ def test(model, dataset, weights_file):
     print(f"Correct: {correct} / {total} ===> {correct / total * 100 :.3f}%")
     return correct / total
 
+# runs a single pass of all data in the dataloader, does not change the gradients
 def test_single_pass(model, dataloader, device, criterion=None):
     correct = 0
     total = 0
@@ -149,6 +157,8 @@ def test_single_pass(model, dataloader, device, criterion=None):
             correct += (predicted == labels).sum().item()
     return total, correct, running_loss / len(dataloader)
 
+# plots the history of losses, with the given labels
+# used for variuos experiments 
 def plot_hists(hists, labels, label_end, ylabel, epochs, figname, title, fancy_legend=False):
     plt.figure(figsize=(10, 6))
     x = np.arange(1, epochs + 1)
@@ -173,6 +183,7 @@ def plot_hists(hists, labels, label_end, ylabel, epochs, figname, title, fancy_l
     plt.close()
 
 # plots an array of accuracies provided over epochs
+# used for all ranks plotting during all of the experiments
 def plot_acc(accs, labels, figname, title):
     plt.figure(figsize=(10, 6))
     x = np.arange(len(accs))
@@ -187,6 +198,7 @@ def plot_acc(accs, labels, figname, title):
     plt.close()
 
 # function asisted by AI (model used - Gemini)
+# function visualized the image classfiers output of random 25 images from the test dataset
 def visualize_predictions(model, dataset, device="cpu"):
     model.to(device)
     model.eval()
@@ -224,3 +236,43 @@ def visualize_predictions(model, dataset, device="cpu"):
     plt.tight_layout()
     plt.savefig("visual_test.jpg")
     #plt.show()
+
+# used for timeline classifier to export given number of predictions to a file
+def export_predictions_to_csv(model, dataset, weights_path, filename="predictions.csv", num_samples=30):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
+    model.load_state_dict(torch.load(weights_path, map_location=device, weights_only=True))
+    model.to(device)
+    model.eval()
+
+    dataloader = DataLoader(dataset, batch_size=num_samples, shuffle=False)
+    data_iter = iter(dataloader)
+    features, labels = next(data_iter)
+    features, labels = features.to(device), labels.to(device)
+
+    if hasattr(dataset, 'class_to_idx'):
+        idx_to_class = {v: k for k, v in dataset.class_to_idx.items()}
+    else:
+        idx_to_class = {i: str(i) for i in range(100)} 
+
+    results = []
+
+    with torch.no_grad():
+        outputs = model(features)
+        _, preds = torch.max(outputs, 1)
+        
+        for i in range(len(labels)):
+            true_idx = labels[i].item()
+            pred_idx = preds[i].item()
+            
+            results.append({
+                "Nr": i + 1,
+                "Tikra Klase": idx_to_class.get(true_idx, true_idx),
+                "Modelio Spejimas": idx_to_class.get(pred_idx, pred_idx),
+                "Rezultatas": "TEISINGA" if true_idx == pred_idx else "KLAIDA"
+            })
+
+    with open(filename, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=results[0].keys())
+        writer.writeheader()
+        writer.writerows(results)

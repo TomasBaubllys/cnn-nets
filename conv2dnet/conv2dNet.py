@@ -1,7 +1,10 @@
+# Author: Tomas Baublys
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+# standart model, used as a baseline to compare with others
 class Conv2dNetStd(nn.Module):
 	def __init__(self):
 		super().__init__()
@@ -19,7 +22,6 @@ class Conv2dNetStd(nn.Module):
 
 		self.fc = nn.Sequential(
 			nn.Linear(676, 3)
-			#nn.Linear(50176, 3)
 		)
 
 	def forward(self, x):
@@ -27,7 +29,8 @@ class Conv2dNetStd(nn.Module):
 		x = torch.flatten(x, 1)
 		x = self.fc(x)
 		return x
-	
+
+# residual block definition
 class ResBlock(nn.Module):
 	def __init__(self, channels=4):
 		super().__init__()
@@ -53,6 +56,7 @@ class ResBlock(nn.Module):
 
 		return out
 
+# single resnet block model
 class Conv2dNetRes(nn.Module):
 	def __init__(self):
 		super().__init__()
@@ -66,7 +70,6 @@ class Conv2dNetRes(nn.Module):
 
 		self.fc = nn.Sequential(
 			nn.Linear(256, 3)
-			#nn.Linear(50176, 3)
 		)
 
 	def forward(self, x):
@@ -77,18 +80,21 @@ class Conv2dNetRes(nn.Module):
 		x = self.fc(x)
 		return x
 
+# double resnet block model
 class Conv2dNetResBig(nn.Module):
 	def __init__(self, dropout=0, prep_pool=nn.AvgPool2d(kernel_size=4, stride=1, padding=1)):
 		super().__init__()
 
 		self.dropout = dropout
 		self.res_block1 = ResBlock(8)
+		# prep block used before the first resblock
 		self.prep_layer = nn.Sequential(
 			nn.Conv2d(3, 8, kernel_size=3, stride=1, padding=1),
-			nn.AvgPool2d(kernel_size=4, stride=1, padding=1),
+			#nn.AvgPool2d(kernel_size=4, stride=1, padding=1),
+			prep_pool,
 			nn.ReLU(inplace=True)
 		)
-		
+		# middle block used before the second resblock
 		self.middle_layer = nn.Sequential(
 			nn.Conv2d(8, 16, kernel_size=3, stride=2, padding=1),
 			nn.AvgPool2d(4),

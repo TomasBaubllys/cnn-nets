@@ -10,6 +10,7 @@ from utils.nnutils import test, train, plot_hists, plot_acc, visualize_predictio
 import argparse
 import os
 
+# parses the arguments from the command line, used for variuos tests
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("-bt", "--base_test", action="store_true", help="Run the test on standart models", default=False)
@@ -42,11 +43,11 @@ if __name__ == "__main__":
 
     args = parse_arguments()
     
-    if args.base_test:
+    if args.base_test: # base test no training
         test(modelSmall, dataset_test, "defaultNetStd_model_weights.pth")
         test(modelRes, dataset_test, "defaultRes_model_weights.pth")
         test(modelResBig, dataset_test, "defaultResBig_model_weights.pth")
-    if args.base_test_train:
+    if args.base_test_train: # base test with training
         loss1, rank1 = train(modelSmall, dataset_train, dataset_val, args.num_epochs, model_name="defaultNetStd")
         loss2, rank2 = train(modelRes, dataset_train, dataset_val, args.num_epochs, model_name="defaultRes")
         loss3, rank3 = train(modelResBig, dataset_train, dataset_val, args.num_epochs, model_name="defaultResBig")
@@ -57,7 +58,7 @@ if __name__ == "__main__":
         acc2 = test(modelRes, dataset_test, "defaultRes_model_weights.pth")
         acc3 = test(modelResBig, dataset_test, "defaultResBig_model_weights.pth")
         plot_acc([acc1, acc2, acc3], ["Std", "Res", "ResBig"], "default_test_rank.jpg", "Base models test rank")
-    if args.dropout_test:
+    if args.dropout_test: # last layer dropout test on resbig model
         losss = []
         ranks = []
         accs = []
@@ -74,7 +75,7 @@ if __name__ == "__main__":
         plot_hists(losss, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "loss", "Loss", len(losss[0][0]), "dpRB_train_loss.jpg", "Dropout significance loss", fancy_legend=True)
         plot_hists(ranks, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "rank", "Rank", len(losss[0][0]), "dpRB_train_rank.jpg", "Dropout significance rank", fancy_legend=True)
         plot_acc(accs, ["dp=0", "dp=0.2", "dp=0.5", "dp=0.7", "dp=0.9"], "dpRB_test_rank.jpg", "Dropout significance test rank")
-    if args.pooling_test:
+    if args.pooling_test: # first layer pooling test on the resbig model
         pool_arr = [nn.AvgPool2d(kernel_size=2, stride=1, padding=1), 
                     nn.AvgPool2d(kernel_size=4, stride=1, padding=1),
                     nn.AvgPool2d(kernel_size=4, stride=4, padding=1),
@@ -96,7 +97,7 @@ if __name__ == "__main__":
         plot_hists(losss, labels, "loss", "Loss", len(losss[0][0]), "dpPT_train_loss.jpg", "Pooling train loss", fancy_legend=True)
         plot_hists(ranks, labels, "rank", "Rank", len(losss[0][0]), "dpPT_train_rank.jpg", "Pooling train rank", fancy_legend=True)
         plot_acc(accs, labels, "dpPT_test_rank.jpg", "Pooling test rank")
-    if args.learning_rate_test:
+    if args.learning_rate_test: # learning rate test for the resbig model
         lrs = [0.05, 0.01, 0.001, 0.0005, 0.0001]
         losss = []
         ranks = []
@@ -113,7 +114,7 @@ if __name__ == "__main__":
         plot_hists(losss, labels, "loss", "Loss", len(losss[0][0]), "dpLR_train_loss.jpg", "Learning rate train loss", fancy_legend=True)
         plot_hists(ranks, labels, "rank", "Rank", len(losss[0][0]), "dpLR_train_rank.jpg", "Learning rate train rank", fancy_legend=True)
         plot_acc(accs, labels, "dpLR_test_rank.jpg", "Learning rate test rank")
-    if args.visual_test:
+    if args.visual_test: # used to export predictions of random 25 images from the test dataset using resbig model
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         model = Conv2dNetResBig()
@@ -124,8 +125,8 @@ if __name__ == "__main__":
         load_info = model.load_state_dict(torch.load("ResBiglr0_01_model_weights.pth", map_location=torch.device('cpu'), weights_only=True))
         print(load_info)
         visualize_predictions(model, dataset_test, device)
-    if args.confusion_matrix:
-        model = Conv2dNetResBig
+    if args.confusion_matrix: # used to generate the confusion matrix for the resbig model
+        model = Conv2dNetResBig()
         generate_confusion_matrix(model=model, dataset=dataset_test, weights_path="ResBiglr0_01_model_weights.pth", save_path="confusionresbig.jpg")
 
         
